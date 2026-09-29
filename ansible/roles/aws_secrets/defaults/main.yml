@@ -1,0 +1,12 @@
+---
+aws_region: ap-south-1
+
+aws_secrets:
+  - name: prod-access-key
+    value: "{{ prod_access_key }}"
+
+  - name: qa-access-key
+    value: "{{ qa_access_key }}"
+
+  - name: dev-access-key
+    value: "{{ dev_access_key }}"
