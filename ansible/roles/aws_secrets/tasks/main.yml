@@ -1,11 +1,10 @@
 ---
-- name: Update AWS Secrets Manager secrets
+- name: Create/update AWS Secrets Manager secret
   amazon.aws.secretsmanager_secret:
     name: "{{ item.name }}"
-    secret_string: "{{ item.value }}"
+    description: "{{ item.description | default(omit) }}"
     state: present
     region: "{{ aws_region }}"
   loop: "{{ aws_secrets }}"
   loop_control:
     label: "{{ item.name }}"
-  no_log: true
