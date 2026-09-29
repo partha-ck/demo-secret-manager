@@ -1,0 +1,28 @@
+---
+- name: Inspect AWX EE
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+
+    - name: Check AWS CLI
+      ansible.builtin.command:
+        cmd: aws --version
+      register: aws_cli
+      changed_when: false
+      failed_when: false
+
+    - name: Check amazon.aws collection
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection list
+      register: collections
+      changed_when: false
+
+    - name: Show AWS CLI
+      ansible.builtin.debug:
+        var: aws_cli.stdout
+
+    - name: Show collections
+      ansible.builtin.debug:
+        var: collections.stdout
