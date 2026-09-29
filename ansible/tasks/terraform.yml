@@ -1,0 +1,35 @@
+---
+- name: Set Terraform version
+  ansible.builtin.set_fact:
+    terraform_version: "1.13.3"
+
+- name: Check if Terraform is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/terraform"
+  register: terraform_check
+
+- name: Create local bin directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: "0755"
+
+- name: Download Terraform
+  ansible.builtin.get_url:
+    url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
+    dest: "/tmp/terraform.zip"
+    mode: "0644"
+  when: not terraform_check.stat.exists
+
+- name: Install Terraform
+  ansible.builtin.unarchive:
+    src: "/tmp/terraform.zip"
+    dest: "{{ ansible_env.HOME }}/.local/bin"
+    remote_src: true
+  when: not terraform_check.stat.exists
+
+- name: Remove Terraform archive
+  ansible.builtin.file:
+    path: "/tmp/terraform.zip"
+    state: absent
+  when: not terraform_check.stat.exists

@@ -1,0 +1,40 @@
+---
+- name: Check if AWS CLI is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/aws"
+  register: awscli_check
+
+- name: Create local bin directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: "0755"
+
+- name: Download AWS CLI
+  ansible.builtin.get_url:
+    url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+    dest: "/tmp/awscliv2.zip"
+    mode: "0644"
+  when: not awscli_check.stat.exists
+
+- name: Unarchive AWS CLI
+  ansible.builtin.unarchive:
+    src: "/tmp/awscliv2.zip"
+    dest: "/tmp"
+    remote_src: true
+  when: not awscli_check.stat.exists
+
+- name: Install AWS CLI
+  ansible.builtin.command:
+    cmd: "./aws/install -i {{ ansible_env.HOME }}/.local/aws-cli -b {{ ansible_env.HOME }}/.local/bin"
+    chdir: /tmp
+  when: not awscli_check.stat.exists
+
+- name: Remove AWS CLI installer files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/aws
+    - /tmp/awscliv2.zip
+  when: not awscli_check.stat.exists
